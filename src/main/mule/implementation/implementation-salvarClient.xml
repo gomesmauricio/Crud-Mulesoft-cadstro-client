@@ -59,7 +59,7 @@ var address = vars.inputPayload.endereco
 {
 	pId_cliente: vars.idClient,
 	pCep: address.cep,
-	pCidade: address.cep,
+	pCidade: address.cidade,
 	pEstado: address.estado,
 	pRua: address.rua
 }]]></ee:set-payload>
