@@ -25,7 +25,7 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="261e6ec8-88bf-488f-8d72-9d2e29bac69b" message="#[payload.id_client]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="261e6ec8-88bf-488f-8d72-9d2e29bac69b" message="#[{&#10;	message: payload.message,&#10;	idClient: payload.id_client&#10;}]"/>
 	
 </sub-flow>
 	<sub-flow name="implementation-salvar-TableClient" doc:id="afdf356c-3f5a-465b-bc1a-34ad5bdcc11a" >
