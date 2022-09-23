@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="implementation-buscarClient-main" doc:id="aca4b571-58e1-4623-8c97-034e376524dc" >
+		<flow-ref doc:name="Get-clientDB" doc:id="dea744ac-5914-4caa-b9bc-bb99e123d0e6" name="implementation-buscarClient-DB"/>
+	</sub-flow>
+	<sub-flow name="implementation-buscarClient-DB" doc:id="566532a6-9825-44f5-9e11-4580fe0d8d05" >
+		<db:select doc:name="Select" doc:id="23e13830-7c2f-4795-8645-7d8331854127" config-ref="Heroku-Postigres">
+			<db:sql ><![CDATA[select 
+	   c.id_client,
+	   c.name,
+       c.lastname,
+	   a.zip_code,
+	   a.city,
+	   a.uf,
+	   a.street,
+	   p.phone_number
+from client c,
+     address a,
+	 phone p 
+where c.id_client = a.id_client 
+  and c.id_client = p.id_client
+  and c.id_client = :pId_cliente]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	pId_cliente: vars.id_cliente
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="5fe6d917-6305-4d4e-ba41-5498f5854b1e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>
