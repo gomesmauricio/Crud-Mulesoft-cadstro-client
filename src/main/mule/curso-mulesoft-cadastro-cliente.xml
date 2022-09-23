@@ -129,7 +129,7 @@ output application/json
         <logger level="INFO" message="get:\cliente:curso-mulesoft-cadastro-cliente-config" />
     </flow>
     <flow name="get:\health-check:curso-mulesoft-cadastro-cliente-config">
-        <logger level="INFO" message="get:\health-check:curso-mulesoft-cadastro-cliente-config" />
+        <flow-ref doc:name="HealthCheck" doc:id="afdbaafb-d28e-4b48-89c4-8e27bcf1d9b9" name="implementation-helathCheck-main"/>
     </flow>
     <flow name="get:\cliente\(id):curso-mulesoft-cadastro-cliente-config">
         <ee:transform>
@@ -138,7 +138,6 @@ output application/json
             </ee:variables>
         </ee:transform>
         <flow-ref doc:name="Implementação Buscar Client-to-Id" doc:id="2b0e02ac-7281-4360-bd92-bb5659ad446f" name="implementation-buscarClient-main"/>
-		<logger level="INFO" message="#[payload]" />
     </flow>
     <flow name="post:\cliente:application\json:curso-mulesoft-cadastro-cliente-config">
 		<flow-ref doc:name="Implementação Salvar Ususario" doc:id="472628ab-351d-40bc-8864-5f2a643dc86a" name="implementation-salvarUsuario-main"/>
