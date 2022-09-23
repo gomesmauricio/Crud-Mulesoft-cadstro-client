@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="61c6580b-dd01-41ef-9276-e9e4e1512e16" basePath="/apiRest/v1" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Heroku-Postigres" doc:name="Database Config" doc:id="6374814f-dad9-4ad9-8435-da6311db21a2" >
+		<db:generic-connection url="jdbc:postgresql://ec2-52-71-69-66.compute-1.amazonaws.com:5432/d13uelgkqpujk1" driverClassName="org.postgresql.Driver" user="syxctzabmipteq" password="efc3001b8eeec1cd7590b4ea78f004a2b1e818a78b1a754d8161667ffe946fa5" />
+	</db:config>
+</mule>

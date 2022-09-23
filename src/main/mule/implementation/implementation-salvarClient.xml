@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<sub-flow name="implementation-salvarUsuario-main"
+		doc:id="1eea77e8-0bab-421c-98dc-7a8ff64d8520">
+		<flow-ref doc:name="Salvar-TableClient" doc:id="b894e831-4bc5-45dd-8afe-9c1edbc6c859" name="implementation-salvar-TableClient"/>
+		<flow-ref doc:name="Salvar-TabelaEndereço" doc:id="2a6dcbd3-ad26-4754-929b-416ddea290cf" name="implementation-salvarTableAddress"/>
+		<flow-ref doc:name="Salvar-TabelaPhone" doc:id="932196ea-5ff6-404d-9508-0c82b4a4851d" name="implementation-salvarTablePhone"/>
+		<ee:transform doc:name="Transform Message"
+			doc:id="30415438-7cbf-4c57-8d5a-00420d676401">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Cliente Cadastrado com sucesso!",
+	id_client: vars.idClient
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="261e6ec8-88bf-488f-8d72-9d2e29bac69b" message="#[payload.id_client]"/>
+	
+</sub-flow>
+	<sub-flow name="implementation-salvar-TableClient" doc:id="afdf356c-3f5a-465b-bc1a-34ad5bdcc11a" >
+		<ee:transform doc:name="Transform Message" doc:id="b3888951-5cb4-4793-be82-5947ca2ead84">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+var client = vars.inputPayload
+---
+{
+	pNome: client.nome,
+	pSobrenome: client.sobrenome
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:insert doc:name="Insert" doc:id="3fa7e5f4-e634-4d44-a0e2-d75de9daeb23" config-ref="Heroku-Postigres" autoGenerateKeys="true">
+			<db:sql><![CDATA[INSERT INTO public.client(
+	name, lastname)
+VALUES (:pNome, :pSobrenome) RETURNING id_client;]]></db:sql>
+			<db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
+		</db:insert>
+		<set-variable value="#[(payload.generatedKeys.id_client default 0) as String]" doc:name="idClient" doc:id="ea53e170-3b8b-4f44-84d8-290ef9819a51" variableName="idClient" />
+	</sub-flow>
+	<sub-flow name="implementation-salvarTableAddress" doc:id="acd116d7-8ff7-47e9-a929-3b5df35ec9ef" >
+		<ee:transform doc:name="Transform Message" doc:id="4dd2f9dd-2ce5-4dc8-897d-97d7affc5902" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var address = vars.inputPayload.endereco
+---
+{
+	pId_cliente: vars.idClient,
+	pCep: address.cep,
+	pCidade: address.cep,
+	pEstado: address.estado,
+	pRua: address.rua
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:insert doc:name="Insert" doc:id="5c3476d2-140c-4b5c-a539-58effe1eeed0" config-ref="Heroku-Postigres">
+			<db:sql ><![CDATA[INSERT INTO public.address(
+	id_client, zip_code, city, uf, street)
+VALUES (:pId_cliente, :pCep, :pCidade, :pEstado, :pRua);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+		</db:insert>
+	</sub-flow>
+	<sub-flow name="implementation-salvarTablePhone" doc:id="19d02649-8764-4bca-9ff6-0f2b888c28bf" >
+		<ee:transform doc:name="Transform Message" doc:id="7cba1570-5a46-4507-91c0-dcdd971349e1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var phones = vars.inputPayload.telefones
+var enptyString = ""
+---
+phones map (
+	{
+		pId_cliente: vars.idClient,
+		pNumero_telefone: ($.ddd as String default enptyString) ++
+							($.numero as String default enptyString)
+	}
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="0d84253f-a70b-4485-ad5a-4e0bdba04d87" config-ref="Heroku-Postigres">
+			<db:sql ><![CDATA[INSERT INTO public.phone(
+	id_client, phone_number)
+VALUES (:pId_cliente, :pNumero_telefone);]]></db:sql>
+		</db:bulk-insert>
+	</sub-flow>
+</mule>
